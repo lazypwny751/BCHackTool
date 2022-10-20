@@ -1,1 +1,1 @@
-installer.sh
+#!/bin/sh -e

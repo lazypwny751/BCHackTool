@@ -65,7 +65,7 @@ done
 
 case "${DO}" in
     shell)
-        bash --rcfile "${SRCDIR}/conf/bashrc"
+        :
     ;;
     help)
         echo -e "this helper text"
