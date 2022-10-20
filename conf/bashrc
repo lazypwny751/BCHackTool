@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e
+
+export HOME="${SRCDIR}"
+
+if [[ "${UID}" -eq 0 ]] ; then
+    # There is a god user.
+    export PS1="\e[0;31m${project}\e[0;37m[\e[0;34m${version}\e[0;37m]# "
+else
+    # There is a mortal user.
+    export PS1="\e[0;32m${project}\e[0;37m[\e[0;34m${version}\e[0;37m]> "
+fi
+export PATH="${SRCDIR}/bin:${PATH}"
+
+if [[ -f "${SRCDIR}/conf/banner.sh" ]] ; then
+    alias banner="source ${SRCDIR}/conf/banner.sh"
+fi
+
+if sudo --exist ; then
+    alias please="sudo"
+elif doas --exist ; then
+    alias please="doas"
+else
+    alias please="echo 'please restart a ${project} session with super user privalages.'"
+fi
+
+alias ls="ls --color=auto" 
+
+source requiresh "color" "check" "os" "kiss" "lang" "userinterface"
+os:check:have --command "kiss"
+lang:initailize
+unset i x isfound IFS
+
+set +e
+
+# There is no need to make that variables readonly.
+export version="3.2.0" maintainer="ByCh4n" contributors="ByCh4n, lazypwny751" 2> /dev/null 
+
+# Print the banner before start.
+source "${SRCDIR}/conf/banner.sh" 2> /dev/null
