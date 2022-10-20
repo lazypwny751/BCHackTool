@@ -1,6 +1,0 @@
-#!/bin/bash
-
-cat ./banners/banner
-echo -n "Script Güncelleniyor.."
-git fetch origin && git reset --hard origin/master && git clean -f -d &> /dev/null
-echo "[OK]"
