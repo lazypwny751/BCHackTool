@@ -1,0 +1,33 @@
+#!/bin/bash
+
+repo="xd20111/inshackle"
+entrypoint="file:bash:${TOOLDIR}/inshackle.sh"
+
+# package : command
+require_debian=(
+    "coreutils:mkdir:mkdir"
+    "coreutils:rm:rm"
+    "coreutils:cp:cp"
+    "grep:grep:grep"
+    "curl:curl:curl"
+)
+
+require_ubuntu=(
+    ""
+)
+
+require_kali=(
+    "aa"
+)
+
+require_fedora=(
+    "aa"
+)
+
+require_arch=(
+    "aa"
+)
+
+require_pisi=(
+    ""
+)
