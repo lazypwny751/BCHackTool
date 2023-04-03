@@ -1,1 +1,11 @@
 hello world : merhaba sevgili kullanıcı, bchacktool'a hoş geldin, bu aracın süper hindi güçleri vardır.
+unknown command, type help to get information about existing commands : bilinmeyen komut, var olan komutlar hakkında bilgi almak için "help" yazın.
+please select your language : lütfen dilinizi seçiniz:=> 
+the language you selected is not ready, please try again : seçtiğiniz dil hazır değil, lütfen tekrar deneyin.
+switching language : dil değiştiriliyor.
+hello, can you understand me : merhaba, beni anlayabiliyor musun?
+updating tool self : araç kendi kendini güncelliyor..
+failed to update : güncelleme başarısız!
+updated successfully : güncelleme başarılı.
+listing tools, don't forget you can choise tool you want with select command : araçlar listeleniyor, unutma istediğin aracı "select <araç>" komutu ile seçebilirsin:
+total tools : total araçlar:

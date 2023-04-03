@@ -5,7 +5,5 @@ split($0,var," : ") {
     if (opt == var[1]) {
         print(var[2])
         exit(0)
-    } else {
-        exit(1)
     }
 }
