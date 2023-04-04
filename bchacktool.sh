@@ -194,13 +194,13 @@ bc:oscom() {
             # Auto choise can be added but no needed(like apt install -y pkg pkg..).
             case "$(bc:oscom:bcall)" in
                 "debian"|"ubuntu"|"kali")
-                    apt install "${OPTARG[@]}"
+                    apt install -y "${OPTARG[@]}"
                 ;;
                 "fedora")
-                    dnf install "${OPTARG[@]}"
+                    dnf install -y "${OPTARG[@]}"
                 ;;
                 "arch")
-                    pacman -S "${OPTARG[@]}"
+                    pacman -S --noconfirm "${OPTARG[@]}"
                 ;;
             esac            
         ;;
