@@ -37,6 +37,7 @@ COMMANDS=(
     "awk"
     "git"
     "find"
+    "chmod"
     "mkdir"
 )
 
@@ -128,11 +129,59 @@ bc:_init_() {
     fi
 }
 
+# All the operating system functionality is here like package manager helper, run as root helper, define base etc..
 bc:oscom() {
     local OPTARG=() option="getbase"
     # Operating System Communicator
+    bc:oscom:bcall() {
+        # Base call
+        source "/etc/os-release"
+        case "${ID}" in
+            "debian")
+                echo "debian"
+            ;;
+            "linuxmint"|"ubuntu")
+                echo "ubuntu"
+            ;;
+            "kali")
+                echo "kali"
+            ;;
+            "fedora")
+                echo "fedora"
+            ;;
+            "arch"|"pnm")
+                echo "arch"
+            ;;
+            *)
+                echo "unknown"
+            ;;
+        esac
+    }
+
     while [[ "${#}" -gt 0 ]] ; do
         case "${1}" in
+            "--install")
+                local option="install"
+                shift
+            ;;
+            "--update")
+                local option="update"
+                shift
+            ;;
+            "--polkit")
+                local option="polkit"
+                shift
+                if [[ -n "${1}" ]] ; then
+                    local EXEC="${1}"
+                    shift
+                else
+                    echo "execute as root, byc4n tool kit helper."
+                fi
+            ;;
+            "--getbase")
+                local option="getbase"
+                shift
+            ;;
             *)
                 local OPTARG+=("${1}")
                 shift
@@ -141,20 +190,61 @@ bc:oscom() {
     done
 
     case "${option}" in
+        "install")
+            # Auto choise can be added but no needed(like apt install -y pkg pkg..).
+            case "$(bc:oscom:bcall)" in
+                "debian"|"ubuntu"|"kali")
+                    apt install "${OPTARG[@]}"
+                ;;
+                "fedora")
+                    dnf install "${OPTARG[@]}"
+                ;;
+                "arch")
+                    pacman -S "${OPTARG[@]}"
+                ;;
+            esac            
+        ;;
+        "update")
+            case "$(bc:oscom:bcall)" in
+                "debian"|"ubuntu"|"kali")
+                    apt update
+                ;;
+                "fedora")
+                    dnf makecache --refresh
+                ;;
+                "arch")
+                    pacman -Syy
+                ;;
+            esac
+        ;;
         "getbase")
-            :
+            bc:oscom:bcall
+        ;;
+        "polkit")
+            # Execute as root
+            if [[ "${UID}" -eq 0 ]] ; then
+                true
+            elif command -v "sudo" &> /dev/null ; then
+                echo "sudo -u root"
+            elif command -v "doas" &> /dev/null ; then
+                echo "doas -u root"
+            else
+                echo -e "\t${red}$(mlp:echo "please, run it as root privalages")${reset}"
+                return 1
+            fi
         ;;
         *)
-            :
+            echo -e "\tthere is no option like \"${option}\""
         ;;
     esac
 }
 
+# Fake environment manager.
 bc:fakeenv() {
-    # Fake environment manager.
     :
 }
 
+# Standart banner function.
 bc:banner() {
     # We're using for bannes the https://patorjk.com/software/taag, thanks patorjk.
     local banners=(
@@ -232,6 +322,7 @@ ${reset}"
     esac
 }
 
+# List lolcales (available languages).
 bc:getlangnames() {
     local setlocals=()
     while IFS="" read -r -d $'\0' ; do
@@ -246,6 +337,7 @@ bc:getlangnames() {
     done
 }
 
+# List existing metafiles (available tools).
 bc:listitems() {
     local setitems=()
     while IFS="" read -r -d $'\0' ; do
@@ -257,12 +349,13 @@ bc:listitems() {
     for i in "${setitems[@]}" ; do
         local settool="${i##*/}"
         local settool="${settool%.*}"
-        echo -e "\t${cyan}${settool}${reset}"
+        echo -e "\t- ${cyan}${settool}${reset}"
         local toolcounter="$(( ${toolcounter} + 1 ))"
     done
     echo -e "${blue}$(mlp:echo "total tools") ${toolcounter}${reset}"
 }
 
+# Clean exit, removing temp directory etc..
 bc:cleanexit() {
     if [[ -d "${CWD}/.TMP" ]] ; then
         rm -rf "${CWD}/.TMP" 2> /dev/null
@@ -274,6 +367,13 @@ bc:cleanexit() {
 # Parsing arguments and parameters
 while [[ "${#}" -gt 0 ]] ; do
     case "${1}" in
+        --[lL][aA][nN][gG][uU][aA][gG][eE])
+            shift
+            if [[ -n "${1}" ]] ; then
+                export SETLANG="${1}"
+                shift
+            fi
+        ;;
         --[hH][eE][lL][pP])
             export option="help"
             shift
@@ -285,6 +385,8 @@ while [[ "${#}" -gt 0 ]] ; do
     esac
 done
 
+trap bc:cleanexit INT
+
 # Options
 case "${option}" in
     "shell")
@@ -293,17 +395,67 @@ case "${option}" in
         echo -e "${yellow}$(mlp:echo "listing tools, don't forget you can choise tool you want with select command")${reset}"
         bc:listitems
         while true ; do
-            read -p "bchacktool[${version}]:> " main
+            read -p "bchacktool[v${version}]:> " main
             read -a param <<< "${main}"
             export param
             case "${main}" in
                 [sS][eE][lL][eE][cC][tT]*)
                     if [[ -f "${CWD}/tools/${param[1]}.meta" ]] ; then
                         export setmetafile="${CWD}/tools/${param[1]}.meta"
-                        (
-                            set +e
-                            ls "${setmetafile}"
-                        )
+                        echo -e "\t$(bchelper:getrepoinfo "${setmetafile}")"
+                        echo -e "\t${green}==>${reset} $(mlp:echo "selected") ${param[1]}"
+                        if bchelper:checkin "${setmetafile}" ; then
+                            echo -e "\t${green}==>${reset} $(mlp:echo "seems like installed")"
+                        else
+                            echo -e "\t${red}==>${reset} $(mlp:echo "not installed yet")"
+                        fi
+                        while true ; do
+                            read -p "bchacktool[${param[1]}]:> " second
+                            case "${second}" in
+                                [rR][uU][nN]|[eE][xX][eE][cC])
+                                    :
+                                ;;
+                                [iI][nN][sS][tT][aA][lL][lL]|[uU][pP][dD][aA][tT][eE]|[gG][eE][tT])
+                                    (
+                                        set +e
+                                        bchelper:gettool "${setmetafile}"
+                                        exit 0
+                                    )
+                                ;;
+                                [sS][tT][aA][tT][eE])
+                                    echo -e "\t$(bchelper:getrepoinfo "${setmetafile}")"
+                                    echo -e "\t${green}==>${reset} $(mlp:echo "selected") ${param[1]}"
+                                    if bchelper:checkin "${setmetafile}" ; then
+                                        echo -e "\t${green}==>${reset} $(mlp:echo "seems like installed")"
+                                    else
+                                        echo -e "\t${red}==>${reset} $(mlp:echo "not installed yet")"
+                                    fi
+                                    echo -e "${blue}$(mlp:echo "you can type, get to install the tool, and after that you can type run for execute the tool")${reset}"
+                                ;;
+                                [hH][eE][lL][pP])
+                                    echo -e "comming soon.."
+                                ;;
+                                [bB][aA][nN][nN][eE][rR])
+                                    bc:banner
+                                ;;
+                                [cC][lL][eE][aA][rR]|[cC][lL][sS])
+                                    if check:cmd "clear" ; then
+                                        clear
+                                    fi
+                                ;;
+                                [bB][aA][cC][kK]|[rR][eE][tT][uU][rR][nN])
+                                    break
+                                ;;
+                                [eE][xX][iI][tT]|[qQ][uU][iI][tT])
+                                    bc:cleanexit
+                                ;;
+                                *)
+                                    mlp:echo "unknown command, type help to get information about existing commands"
+                                ;;
+                            esac
+                            cd "${CWD}"
+                        done
+                        unset setmetafile
                     else
                         echo -e "${red}$(mlp:echo "the tool doesn't exist") ${yellow}${param[1]}${reset}"
                     fi

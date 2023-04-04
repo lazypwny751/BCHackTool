@@ -11,3 +11,15 @@ listing tools, don't forget you can choise tool you want with select command : a
 total tools : total araçlar:
 did you mean select : şunu mu demek istedin:
 the tool doesn't exist : bu araç bulunamadı:
+selected : seçildi:
+seems like installed : kurulu gibi gözüküyor ("exec" yazmayı deneyebilirsin).
+not installed yet : henüz kurulu değil ("get" yazmayı deneyebilirsin).
+by : yapımcı
+you can type, get to install the tool, and after that you can type run for execute the tool : aracı kurmak için "get" yazabilirsin, ve kurulumdan sonra aracı çalıştırmak için "run" yazabilirsin.
+required variable doesn't exist, please check the meta file if is it in place or is it misconfigured : gerekli değişken bulunamadı, meta dosyası olması gerken yerde mı, ya da yanlış mı yapılandırılmış?
+starting installation : kurulum başlatılıyor..
+please, run it as root privalages : lütfen root yetkileri ile çalıştırın!
+updating operating system catalogs : işletim sisteminizin katalogları güncelleniyor..
+installing dependencies, please be patient : bağımlılıklar yükleniyor lütfen sabırlı olun..
+dependencies installed : bağımlılıklar kuruldu.
+getting the tool : araç getiriliyor..
