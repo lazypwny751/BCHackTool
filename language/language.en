@@ -9,3 +9,5 @@ failed to update : failed to update!
 updated successfully : updated successfully.
 listing tools, don't forget you can choise tool you want with select command : listing tools, don't forget you can choise tool you want with "select <tool>" command:
 total tools : total tools:
+did you mean select : did you mean:
+the tool doesn't exist : the tool doesn't exist:

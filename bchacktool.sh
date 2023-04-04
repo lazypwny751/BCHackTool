@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#    Security Tool Kit written in bash 5.14 - ByCh4n's multi Hack Tool kit 
-#    Copyright (C) 2023  ByCh4n & lazypwny751
+#    Security Tool Kit written in bash 5.1.16 - ByCh4n's multi Hack Tool kit 
+#    Copyright (C) 2023  ByCh4n&lazypwny751
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ COMMANDS=(
     "rm"
     "awk"
     "git"
+    "find"
     "mkdir"
 )
 
@@ -232,16 +233,28 @@ ${reset}"
 }
 
 bc:getlangnames() {
-    local langs="$(echo "${CWD}/"language/language.*)" i=""
-    for i in ${langs} ; do
+    local setlocals=()
+    while IFS="" read -r -d $'\0' ; do
+        setlocals+=("${REPLY}")
+    done < <(find "${CWD}/language" -name language.* -print0)
+
+    local i=""
+
+    for i in "${setlocals[@]}" ; do
         local setlang="${i##*/}"
         echo "${setlang##*.}"
     done
 }
 
 bc:listitems() {
-    local metafiles="$(echo "${CWD}"/tools/*.meta)" i="" toolcounter="0"
-    for i in ${metafiles} ; do
+    local setitems=()
+    while IFS="" read -r -d $'\0' ; do
+        setitems+=("${REPLY}")
+    done < <(find "${CWD}/tools" -name *.meta -print0)
+
+    local i="" toolcounter="0"
+
+    for i in "${setitems[@]}" ; do
         local settool="${i##*/}"
         local settool="${settool%.*}"
         echo -e "\t${cyan}${settool}${reset}"
@@ -281,9 +294,19 @@ case "${option}" in
         bc:listitems
         while true ; do
             read -p "bchacktool[${version}]:> " main
+            read -a param <<< "${main}"
+            export param
             case "${main}" in
-                [sS][eE][lL][eE][cC][tT])
-                    :
+                [sS][eE][lL][eE][cC][tT]*)
+                    if [[ -f "${CWD}/tools/${param[1]}.meta" ]] ; then
+                        export setmetafile="${CWD}/tools/${param[1]}.meta"
+                        (
+                            set +e
+                            ls "${setmetafile}"
+                        )
+                    else
+                        echo -e "${red}$(mlp:echo "the tool doesn't exist") ${yellow}${param[1]}${reset}"
+                    fi
                 ;;
                 [lL][iI][sS][tT]|[tT][oO][oO][lL][sS])
                     echo -e "${yellow}$(mlp:echo "listing tools, don't forget you can choise tool you want with select command")${reset}"
@@ -336,13 +359,19 @@ case "${option}" in
                     bc:cleanexit
                 ;;
                 *)
-                    mlp:echo "unknown command, type help to get information about existing commands"
+                    if [[ -f "${CWD}/tools/${param[0]}.meta" ]] ; then
+                        echo -e "${yellow}$(mlp:echo "did you mean select") ${reset}\"${cyan}select ${param[0]}${reset}\""
+                    else
+                        mlp:echo "unknown command, type help to get information about existing commands"
+                    fi
                 ;;
             esac
         done
     ;;
     "help")
         bc:_init_ "silent"
+        echo "comming soon.."
+        bc:cleanexit
     ;;
     *)
         echo -e "\tthere is no option like \"${option}\"."

@@ -9,3 +9,5 @@ failed to update : güncelleme başarısız!
 updated successfully : güncelleme başarılı.
 listing tools, don't forget you can choise tool you want with select command : araçlar listeleniyor, unutma istediğin aracı "select <araç>" komutu ile seçebilirsin:
 total tools : total araçlar:
+did you mean select : şunu mu demek istedin:
+the tool doesn't exist : bu araç bulunamadı:
