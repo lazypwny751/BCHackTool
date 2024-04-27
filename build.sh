@@ -19,8 +19,10 @@ fi
 
 requirus.sh --command "mkdir"
 
-if [[ ! -d "${mlpd}" ]] ; then
-	mkdir -p "${mlpd}"
+if [[ -d "${mlpd}" ]] ; then
+	rm -rf "${mlpd}"
 fi
+
+mkdir -p "${mlpd}"
 
 mlp-codegen.sh --path "${mlpd}" "${locals[@]}"

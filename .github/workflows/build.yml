@@ -1,0 +1,26 @@
+name: Build on Commit
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Run build script
+      run: |
+        bash build.sh
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "GitHub Actions"
+        git add .
+        git commit -m "Auto-commit after build"
+        git push
