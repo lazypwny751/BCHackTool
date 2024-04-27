@@ -5,7 +5,7 @@ version=(
 )
 
 quit() {
-    echo -e "\n[${blink}${yellow}*${tp}]$blue BCHackTool Programini Tercih Ettiginiz Için Teşekkürler  {ByChan} :)$tp"
+    echo -e "\n[${blink}${yellow}*${tp}]${blue} $(mlp-gettext.sh --path "${MLD}" --language "${BCLANG}" "Thanks for choosing us")${tp} - {${green}ByChan${tp}}${tp} :)"
     exit 0
 }
 
@@ -26,11 +26,36 @@ spinlong() {
     echo -e "[${green}OK${tp}]"
 }
 
-bc.banner() {
+bc.credits() {
     requirus.sh --command "mlp-gettext.sh"
     echo -e "${blink}${lightgreen}---------------------------------------------${tp}
- ${cyan}$(mlp-gettext.sh "${LANG}" "Created by")${tp} - ${white}: ${red}ByCh4n${tp}
+ ${cyan}$(mlp-gettext.sh --path "${MLD}" --language "${BCLANG}" "Create by")\t ${tp}${white}: ${red}ByCh4n${tp}
  ${cyan}Github${tp}\t\t ${white}: ${red}https://github.com/ByCh4n${tp}
  ${cyan}Instagram${tp}\t ${white}: ${red}@huseyinaltns${tp}
 ${blink}${lightgreen}---------------------------------------------${tp}"
+}
+
+bc.shell() {
+    while :; do
+        bc.banner
+        bc.credits
+        echo -e "~~~~~~~~~~~~~~~~~~~~~ ${green}BCHackTool${tp} ~~~~~~~~~~~~~~~~~~~~~~~~~" 
+
+        # Get Tool List as Array
+        readarray -t TOOLLIST < <(libt.parsetool $(libt.getfiles "${BCTOOLD}"))
+
+        # List tools
+        export _c="0" # counter
+        for tool in "${TOOLLIST[@]}" ; do
+            (( _c += 1 ))
+            if (( "${_c}" % 2 != 0 )) ; then
+               printf "${lightcyan}[${tp}${_c}${lightcyan}]${tp} ${yellow}${tool}${tp}\t\t"
+            else
+               printf "${lightcyan}[${tp}${_c}${lightcyan}]${tp} ${yellow}${tool}${tp}\n"
+            fi       
+        done
+
+        printf "\n\nprompt:> " 
+        read null
+    done
 }

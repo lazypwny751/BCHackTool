@@ -40,7 +40,7 @@ for o in "${OPT[@]}" ; do
     # OPT:key=value
     #   GET, PUT, DEL
     # TODO:
-    #   CHK, ADD  
+    #   CHK, ADD, LST 
     export req="${o%%:*}"
     export dat="${o##*:}"
     export key="${dat%%=*}"
