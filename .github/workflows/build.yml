@@ -3,7 +3,9 @@ name: Build on Commit
 on:
   push:
     branches:
+      - master
       - main
+      - dev
 
 jobs:
   build_and_commit:
