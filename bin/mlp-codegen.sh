@@ -51,14 +51,14 @@ mlp.aliases() {
         source "${aliasfile}"
 
         if [[ -z "${ALIAS[@]}" ]] || [[ "${ALIAS[@]}" != *"${header}"* ]] ; then
-            printf "ALIAS+=(\"${header}:${mlfile}\")\n" >> "${aliasfile}" && {
+            printf "ALIAS+=(\"${header}:${mlfile##*/}\")\n" >> "${aliasfile}" && {
                 echo "registered an alias for \"${header}\" is \"${header}\""
             }
         fi
 
         for a in "${@}" ; do
             if [[ "${ALIAS[@]}" != *"${a}"* ]] ; then
-                echo "ALIAS+=(\"${a}:${mlfile}\")" >> "${aliasfile}" && {
+                echo "ALIAS+=(\"${a}:${mlfile##*/}\")" >> "${aliasfile}" && {
                     echo "registered an alias for \"${header}\" is \"${a}\""
                 }
             fi

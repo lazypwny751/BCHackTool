@@ -37,7 +37,7 @@ if [[ -f "${OUTD}/alias.sh" ]] ; then
     source "${OUTD}/alias.sh"
     for a in "${ALIAS[@]}" ; do
         if [[ "${MLANG}" == "${a%%:*}" ]] ; then
-            export mlfile="${a##*:}"
+            export mlfile="${OUTD}/${a##*:}"
             break
         fi
     done

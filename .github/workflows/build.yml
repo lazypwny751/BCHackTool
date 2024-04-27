@@ -24,5 +24,5 @@ jobs:
         git config --local user.email "actions@github.com"
         git config --local user.name "GitHub Actions"
         git add .
-        git commit -m "Auto-commit after build"
+        git commit -m "Generate language scripts and aliases file."
         git push
