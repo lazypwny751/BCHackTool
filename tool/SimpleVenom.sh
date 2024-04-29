@@ -3,7 +3,7 @@ export NAME="SimpleVenom"
 export SRC=(
     "github.com"    # provider
     "ByCh4n"        # maintainer
-    "${NAME}"   # repo
+    "${NAME}"       # repo
 )
 
 export ENTRYPOINT="${PROOT}/simplevenom.sh:simplevenom" # exec <tool>

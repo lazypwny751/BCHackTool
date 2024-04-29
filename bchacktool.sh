@@ -1,26 +1,32 @@
 #!/bin/bash
 
 set -e
+shopt -s expand_aliases
 
-export CWD="${PWD}" PATH="${PATH}:${PWD}/bin"
-export MLD="${CWD}/local/script" BCTOOLD="${CWD}/tool"
+export BCTPATH="$(realpath "$(dirname "${0}")")"
+export PATH="${PATH}:${BCTPATH}/bin"
+export MLD="${BCTPATH}/local/script" BCTOOLD="${BCTPATH}/tool"
 export BCLIB=(
     "base.sh"
     "banner.sh"
     "color.sh"
     "libtool.sh"
+    "polkish.sh"
+    "utils.sh"
 )
 
-[[ ! -x "${PWD}/bin/requirus.sh" ]] && {
+[[ ! -x "${BCTPATH}/bin/requirus.sh" ]] && {
     echo "Requirement helper isn't executable, you can try: ~$ chmod u+x bin/requirus.sh"
     exit 1
 }
 
-source requirus.sh --library "${CWD}/lib" "${BCLIB[@]}"
+source requirus.sh --library "${BCTPATH}/lib" "${BCLIB[@]}"
 requirus.sh --command "mlp-gettext.sh" "git" "bash" "kv.sh" # check bash is in the PATH?
 trap quit INT
 
 export OPTION="shell" OPT=()
+
+set +e
 
 while (( "${#}" > 0 )) ; do
     case "${1,,}" in
@@ -42,6 +48,34 @@ while (( "${#}" > 0 )) ; do
                 shift
             fi
         ;;
+        "--banner")
+            shift
+            if [[ -n "${1}" ]] ; then
+                case "${1,,}" in
+                    "random"|"rand"|"r")
+                        export BCBANNER="random"
+                    ;; 
+                    *)
+                        export BCBANNER="${1}"
+                    ;;
+                esac
+                shift
+            fi
+        ;;
+        "--default")
+            shift
+            if [[ -n "${1}" ]] ; then
+                case "${1,,}" in
+                    "banner")
+                        export showbanneralways="true" 
+                    ;;
+                esac
+            fi
+        ;;
+        "--version")
+            export OPTION="version"
+            shift
+        ;;
         *)
             shift
         ;;
@@ -50,7 +84,7 @@ done
 
 case "${OPTION,,}" in
     "shell")
-        bc.shell # options?
+        bc.shell --prompt "${BCPROMPT:-"default"}" --banner "${BCBANNER:-"default"}"
     ;;
     "list languages")
         for l in "${MLD}/"*".sh" ; do
@@ -60,6 +94,9 @@ case "${OPTION,,}" in
                 echo "${l}"
             fi
         done
+    ;;
+    "version")
+        echo "${version[0]}.${version[1]}.${version[2]}"
     ;;
     *)
         :

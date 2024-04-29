@@ -7,7 +7,7 @@ set -e
 unset OPT
 export STORAGED="${HOME:-"."}/.config/bckvsh" DATABASE="test" status="true"
 
-requirus.sh --command "cat" "mkdir" "rm"
+./bin/requirus.sh --command "cat" "mkdir" "rm"
 
 while (( "${#}" > 0 )) ; do
     case "${1,,}" in
@@ -38,15 +38,14 @@ fi
 
 for o in "${OPT[@]}" ; do
     # OPT:key=value
-    #   GET, PUT, DEL
-    # TODO:
-    #   CHK, ADD, LST 
+    #   GET, PUT, DEL, CHK, CDB, ADD, LST
     export req="${o%%:*}"
     export dat="${o##*:}"
     export key="${dat%%=*}"
     export val="${dat##*=}"
     case "${req^^}" in
         "GET")
+            # Get value of a key
             if "${status}" && [[ -f "${STORAGED}/${DATABASE}/${key}" ]] ; then
                 cat "${STORAGED}/${DATABASE}/${key}"
             else
@@ -55,6 +54,7 @@ for o in "${OPT[@]}" ; do
             fi
         ;;
         "PUT")
+            # Overwrite a key
             if "${status}" && [[ -d "${STORAGED}/${DATABASE}" ]] ; then
                 echo "${val}" > "${STORAGED}/${DATABASE}/${key}" || {
                     export status="false"
@@ -65,12 +65,48 @@ for o in "${OPT[@]}" ; do
             fi
         ;;
         "DEL")
+            # Delete a key
             if "${status}" && [[ -f "${STORAGED}/${DATABASE}/${key}" ]] ; then
                 rm "${STORAGED}/${DATABASE}/${key}" || {
                     export status="false"
                 }
             else
                 echo "${0##*/}: doesn't exists, so already removed: \"${key}\""
+            fi
+        ;;
+        "CHK")
+            # Check Key is a regular file
+            if "${status}" && [[ -f "${STORAGED}/${DATABASE}/${key}" ]] ; then
+                echo "${key}"
+            fi
+        ;;
+        "CDB")
+            # Check Database, this field is different from others
+            if "${status}" && [[ -d "${STORAGED}/${key}" ]] ; then
+                echo "${DATABASE}"
+            fi
+        ;;
+        "ADD")
+            # Add is like PUT, but it's not overwrites
+            if "${status}" && [[ -d "${STORAGED}/${DATABASE}" ]] ; then
+                echo "${val}" >> "${STORAGED}/${DATABASE}/${key}" || {
+                    export status="false"
+                }
+            else
+                echo "${0##*/}: failure on write: \"${key}\""
+                export status="false"
+            fi
+        ;;
+        "LST")
+            if "${status}" && [[ -d "${STORAGED}/${DATABASE}" ]] ; then
+                for k in "${STORAGED}/${DATABASE}/"* ; do
+                    if [[ -f "${k}" ]] ; then
+                        echo "${k##*/}"
+                    fi
+                done
+            else
+                echo "${0##*/}: failure on read database: \"${DATABASE}\""
+                export status="false"
             fi
         ;;
     esac

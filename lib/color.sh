@@ -1,4 +1,5 @@
 # Colors
+
 blink="\e[5m"
 cyan="\e[0;36m"
 lightcyan="\e[96m"

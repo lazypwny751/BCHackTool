@@ -1,61 +1,119 @@
+alias bc.gettext='mlp-gettext.sh --path "${MLD}" --language "${BCLANG}"'
+
 version=(
 	"3"
 	"2"
 	"0"
 )
 
-quit() {
-    echo -e "\n[${blink}${yellow}*${tp}]${blue} $(mlp-gettext.sh --path "${MLD}" --language "${BCLANG}" "Thanks for choosing us")${tp} - {${green}ByChan${tp}}${tp} :)"
-    exit 0
-}
-
-pressanykey() {
-    read -t "${1:-"3"}" -n 1 -r -s -p $'Press any key to continue...\n'
-}
-
-spinlong() {
-    bar="---------------------------"
-    barlength="${#bar}"
-    i="0"
-    while ((i < 100)); do
-        n="$((i*barlength / 100))"
-        printf "\e[00;32m\r[%-${barlength}s]\e[00m" "${bar:0:n}"
-        ((i += RANDOM % 5 + 2))
-        sleep "0.02"
-    done
-    echo -e "[${green}OK${tp}]"
-}
-
-bc.credits() {
-    requirus.sh --command "mlp-gettext.sh"
-    echo -e "${blink}${lightgreen}---------------------------------------------${tp}
- ${cyan}$(mlp-gettext.sh --path "${MLD}" --language "${BCLANG}" "Create by")\t ${tp}${white}: ${red}ByCh4n${tp}
- ${cyan}Github${tp}\t\t ${white}: ${red}https://github.com/ByCh4n${tp}
- ${cyan}Instagram${tp}\t ${white}: ${red}@huseyinaltns${tp}
-${blink}${lightgreen}---------------------------------------------${tp}"
-}
-
 bc.shell() {
-    while :; do
-        bc.banner
-        bc.credits
-        echo -e "~~~~~~~~~~~~~~~~~~~~~ ${green}BCHackTool${tp} ~~~~~~~~~~~~~~~~~~~~~~~~~" 
-
-        # Get Tool List as Array
-        readarray -t TOOLLIST < <(libt.parsetool $(libt.getfiles "${BCTOOLD}"))
-
+    bc.shell.listtools() {
         # List tools
-        export _c="0" # counter
+        local _c="0" # counter
         for tool in "${TOOLLIST[@]}" ; do
             (( _c += 1 ))
             if (( "${_c}" % 2 != 0 )) ; then
                printf "${lightcyan}[${tp}${_c}${lightcyan}]${tp} ${yellow}${tool}${tp}\t\t"
             else
                printf "${lightcyan}[${tp}${_c}${lightcyan}]${tp} ${yellow}${tool}${tp}\n"
-            fi       
+            fi
         done
+        printf "\n"
+    }
 
-        printf "\n\nprompt:> " 
-        read null
+    # Default variables
+    local status="true" setprompt="default" setbanner="default"
+
+    # Parameter parser
+    while (( "${#}" > 0 )) ; do
+        case "${1,,}" in
+            "--prompt")
+                shift
+                if [[ -n "${1}" ]] ; then
+                    local setprompt="${1}"
+                fi
+            ;;
+            "--banner")
+                shift
+                if [[ -n "${1}" ]] ; then
+                    local setbanner="${1}"
+                fi
+            ;;
+            *)
+                shift
+            ;;
+        esac
+    done
+
+    # Read TOOL list from tool directory.
+    readarray -t TOOLLIST < <(libt.parsetool $(libt.getfiles "${BCTOOLD}"))
+
+    # Showup first time banner
+    if ! "${showbanneralways:-"false"}" && [[ "${setbanner,,}" == "random" ]] ; then
+        bc.banner.rand
+    elif ! "${showbanneralways:-"false"}" ; then
+        bc.banner "${setbanner}"
+    fi
+
+    bc.credits
+    bc.shell.listtools
+
+    unset _settool
+
+    # Main loop for interactive shell
+    while "${status}"; do
+        if [[ -n "${_settool}" ]] ; then
+            if [[ -f "${BCTPATH}/tool/${_settool}.sh" ]] ; then
+                echo "${_settool}.sh var"
+            else
+                :
+            fi
+        fi
+
+        # Show banner
+        if "${showbanneralways:-"false"}" || "${showbanner:-"false"}" ; then
+            if [[ "${setbanner,,}" == "random" ]] ; then
+                bc.banner.rand
+            else
+                bc.banner "${setbanner}"
+            fi
+            if ! "${showbanneralways:-"false"}" ; then
+                unset showbanner
+            fi
+        fi
+
+        # Prompt
+        bc.prompt "${setprompt:-"default"}" 
+        read ropt
+
+        case "${ropt,,}" in
+            "$(bc.gettext "banner")"|"b")
+                local showbanner="true"
+            ;;
+            "$(bc.gettext "clear")"|"$(bc.gettext "cls")"|"c")
+                clear
+            ;;
+            "$(bc.gettext "exit")"|"$(bc.gettext "quit")"|"e"|"q")
+                quit "none"
+                local status="false"
+            ;;
+            "$(bc.gettext "show")"|"$(bc.gettext "show options")"|"$(bc.gettext "show opt")"|"s")
+                echo -e "Tool - ${_settool:-"none"}"
+            ;;
+            "$(bc.gettext "list")"|"$(bc.gettext "list tools")"|"$(bc.gettext "tool")"|"$(bc.gettext "tools")"|"l")
+                bc.shell.listtools
+            ;;
+            *)
+                if bc.isnumber "${ropt}" && (( "${ropt}" > 0 && "${ropt}" < "${#TOOLLIST[@]}" )) ; then
+                    export _settool="${TOOLLIST[((ropt - 1))]}"
+                elif [[ "${ropt}" != "" ]] && ! bc.isnumber ; then
+                    for t in "${TOOLLIST[@]}" ; do
+                        if [[ "${ropt,,}" == "${t,,}" ]] ; then
+                            export _settool="${t}"
+                        fi
+                    done
+                fi
+            ;;
+        esac
     done
 }
