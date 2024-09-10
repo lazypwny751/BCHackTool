@@ -14,7 +14,7 @@ struct Cli {
 enum Commands {
     Install {
         #[arg(value_name = "PACKAGE")]
-        package: String,
+        package: Vec<String>,
     },
 
     Run {
@@ -24,7 +24,7 @@ enum Commands {
 
     Uninstall {
         #[arg(value_name = "PACKAGE")]
-        package: String,
+        package: Vec<String>,
     },
 
     Version,
@@ -39,13 +39,13 @@ fn main() {
 
     match &cli.command {
         Commands::Install { package } => {
-            println!("Install: {}", package);
+            println!("Install: {:?}", package);
         }
         Commands::Run { command } => {
             println!("Run: {}", command);
         }
         Commands::Uninstall { package } => {
-            println!("Uninstall: {}", package);
+            println!("Uninstall: {:?}", package);
         }
         Commands::Version => {
             println!("Version: 3.0");
