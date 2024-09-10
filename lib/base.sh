@@ -104,14 +104,22 @@ bc.shell() {
                 bc.shell.listtools
             ;;
             *)
-                if bc.isnumber "${ropt}" && (( "${ropt}" > 0 && "${ropt}" < "${#TOOLLIST[@]}" )) ; then
+                if bc.isnumber "${ropt}" && (( "${ropt}" > 0 && "${ropt}" <= "${#TOOLLIST[@]}" )) ; then
                     export _settool="${TOOLLIST[((ropt - 1))]}"
                 elif [[ "${ropt}" != "" ]] && ! bc.isnumber ; then
+                    local _foundTool="false"
                     for t in "${TOOLLIST[@]}" ; do
                         if [[ "${ropt,,}" == "${t,,}" ]] ; then
-                            export _settool="${t}"
+                            local _foundTool="true"
+                            export _settool="${t}" 
                         fi
                     done
+
+                    if ! "${_foundTool}" ; then
+                        echo -e "$(bc.gettext "There is no tool or command called like as:") \"${ropt,,}\""
+                    fi
+                else
+                    echo -e "$(bc.gettext "There is no tool or command called like as:") \"${ropt,,}\""
                 fi
             ;;
         esac

@@ -8,10 +8,11 @@ export PATH="${PATH}:${BCTPATH}/bin"
 export MLD="${BCTPATH}/local/script" BCTOOLD="${BCTPATH}/tool"
 export BCLIB=(
     "base.sh"
-    "banner.sh"
     "color.sh"
+    "banner.sh"
     "libtool.sh"
     "polkish.sh"
+    "prompt.sh"
     "utils.sh"
 )
 
