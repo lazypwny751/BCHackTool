@@ -1,38 +1,14 @@
-use clap::{Parser, Subcommand};
-
-#[derive(Parser, Debug)]
-#[command(name = "BChackTool", version = "3.0.0", author = "Huseyin  Altintas", about = "Pentest environment helper.")]
-struct Cli {
-    #[arg(short, long)]
-    verbose: bool,
-
-    #[command(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand, Debug)]
-enum Commands {
-    Install {
-        #[arg(value_name = "PACKAGE")]
-        package: Vec<String>,
-    },
-
-    Run {
-        #[arg(value_name = "COMMAND")]
-        command: String,
-    },
-
-    Uninstall {
-        #[arg(value_name = "PACKAGE")]
-        package: Vec<String>,
-    },
-
-    Version,
-}
+use clap::Parser;
+use bclib::structs::{
+	Commands,
+	Cli
+};
 
 fn main() {
+	// Parse parameters.
     let cli = Cli::parse();
 
+	// Verbose mode not needed for now, but we'll use it in the future..
     if cli.verbose {
         println!("Verbose!");
     }
@@ -46,9 +22,6 @@ fn main() {
         }
         Commands::Uninstall { package } => {
             println!("Uninstall: {:?}", package);
-        }
-        Commands::Version => {
-            println!("Version: 3.0");
         }
     }
 }
