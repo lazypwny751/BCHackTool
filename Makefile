@@ -12,8 +12,11 @@ build:
 
 install:
 
+clippy:
+	cargo clippy --all-targets --all-features -- -Dwarnings
+
 clean:
 	cargo clean
 	rm Cargo.lock
 
-.PHONY: doctor all build install
+.PHONY: all doctor build install clippy clean
