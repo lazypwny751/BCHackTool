@@ -13,6 +13,8 @@ git clone https://github.com/ByCh4n/BCHackTool.git
 cd BCHackTool && make
 ```
 
-# Contributors
+# Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 # License
+[GPL3](https://choosealicense.com/licenses/gpl-3.0/)
