@@ -1,2 +1,1 @@
-pub mod structs;
-pub mod base;
+pub mod statics;

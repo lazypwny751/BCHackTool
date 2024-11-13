@@ -1,8 +1,8 @@
 use clap::Parser;
-use bclib::structs::{
-	Commands,
-	Cli
-};
+use crate::utils::clap::{Cli, Commands};
+
+mod driver;
+mod utils;
 
 fn main() {
 	// Parse parameters.

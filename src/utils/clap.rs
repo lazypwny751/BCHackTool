@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use crate::base;
+use bclib::statics;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
@@ -21,7 +21,7 @@ pub enum Commands {
 }
 
 #[derive(Parser, Debug)]
-#[command(name = "BChackTool", version = base::VERSION, author = "Huseyin  Altintas", about = "ByCh4n's pentest environment, pentesting is easy now.")]
+#[command(name = "BChackTool", version = statics::VERSION, author = "Huseyin  Altintas", about = "ByCh4n's pentest environment, pentesting is easy now.")]
 pub struct Cli {
     #[arg(short, long)]
     pub verbose: bool,
@@ -29,4 +29,3 @@ pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
 }
-
