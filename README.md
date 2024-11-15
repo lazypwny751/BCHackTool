@@ -8,6 +8,9 @@ Pentesting is easy now.
 
 ## Installation
 
+### Dependencies
+- bash >= 5.1 
+
 ```sh
 git clone https://github.com/ByCh4n/BCHackTool.git
 cd BCHackTool && make

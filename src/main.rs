@@ -1,7 +1,7 @@
 use clap::Parser;
-use crate::utils::clap::{Cli, Commands};
+use util::clap::{Cli, Commands};
 use rust_i18n::t;
-mod utils;
+mod util;
 
 // The string fields are required for initialization but it can be changed in main.
 rust_i18n::i18n!("locales", fallback = "en");
