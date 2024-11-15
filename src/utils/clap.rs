@@ -18,6 +18,7 @@ pub enum Commands {
         package: Vec<String>,
     },
 
+	Shell,
 }
 
 #[derive(Parser, Debug)]
@@ -25,6 +26,9 @@ pub enum Commands {
 pub struct Cli {
     #[arg(short, long)]
     pub verbose: bool,
+
+	#[arg(short, long, default_value = "en")]
+	pub language: String,
 
     #[command(subcommand)]
     pub command: Commands,
