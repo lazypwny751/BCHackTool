@@ -1,22 +1,16 @@
+SRC := bchacktool.sh
 PREFIX := /usr
 BINDIR := $(PREFIX)/bin
-SHRDIR := $(PREFIX)/share/bchacktool
+BINPTH := $(BINDIR)/bchacktool
 
-all: doctor build install
-
-doctor:
-	@echo "bchacktool doctor check-up.."
-
-build:
-	cargo build
+all: setup_root install
+setup_root:
+	mkdir -vp $(BINDIR)
 
 install:
+	install -vm 755 $(SRC) $(BINPTH)
 
-clippy:
-	cargo clippy --all-targets --all-features -- -Dwarnings
+remove:
+	rm -v $(BINPTH)
 
-clean:
-	cargo clean
-	rm Cargo.lock
-
-.PHONY: all doctor build install clippy clean
+.PHONY: all setup_root install remove

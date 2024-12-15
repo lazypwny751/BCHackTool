@@ -9,7 +9,7 @@ Pentesting is easy now.
 ## Installation
 
 ### Dependencies
-- bash >= 5.1 
+- bash >= 5.1 (this will required for the termux version) 
 
 ```sh
 git clone https://github.com/ByCh4n/BCHackTool.git
