@@ -70,7 +70,7 @@ function handle_exit {
 		"Nyeh heh heh!"
 		"Salamat qal."
 		"Yenə görüşək."
-	)	
+	)
 	printf "${msg[$(( RANDOM % ${#msg[@]} ))]}\n"
 }
 
