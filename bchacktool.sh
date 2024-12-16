@@ -47,6 +47,12 @@ function warn {
 	return "${2:-0}"
 }
 
+function info {
+	local MSG="${1:-Unknown}"
+	printf "${0##*/}: ${blue}info${reset}: ${MSG^}.\n"
+	return "0"
+}
+
 function err {
 	local MSG="${1:-Unknown}"
 	printf "${0##*/}: ${red}error${reset}: ${MSG^}.\n"
@@ -83,7 +89,7 @@ function banner {
 }
 
 ## Command Package
-function requirus {
+function require {
 	local cmd="" status="true" counter="0"
 
 	for cmd in "${@}"
@@ -100,6 +106,40 @@ function requirus {
 	then
 		err "there's \"${counter}\" missing command"
 	fi
+}
+
+function arr2ver {
+	local MAJOR="${1:-0}"
+	local MINOR="${2:-0}"
+	local PATCH="${3:-0}"
+	local VERSION=("${MAJOR}" "${MINOR}" "${PATCH}")
+	local v="" counter="0"
+	for v in "${VERSION[@]}"
+	do
+		local counter="$(( counter + 1 ))"
+		if (( "${counter}" > 0 && "${counter}" < "${#VERSION[@]}" ))
+		then
+			printf "${v}."
+		else
+			printf "${v}"
+		fi
+	done
+}
+
+function ver2arr {
+	local VERSION="${1:-0.0.0}"
+	local v="" IFS="." counter="0"
+	for v in ${VERSION}
+	do
+		local counter="$(( counter + 1 ))"
+		if (( "${counter}" > 0 && "${counter}" < 3))
+		then
+			printf "\"${v}\" "
+		else
+			printf "\"${v}\""
+			break
+		fi
+	done
 }
 
 ## Sub Functions
@@ -125,6 +165,50 @@ function bc:nuke {
 	fi
 }
 
+function bc:setup:bcroot {
+	require "mkdir:coreutils" "rm:coreutils"
+	[[ -z "${BCROOT}" ]] && export BCROOT="${HOME:-.}/.bychan"
+	if [[ ! -d "${BCROOT}" ]]
+	then
+		mkdir -p "${BCROOT}"
+	fi
+}
+
+function bc:gensc {
+	if (( "${#}" == 2 ))
+	then
+		local SOURCEDIR="${1}"
+		local SOURCEFILE="${SOURCEDIR}/${2}"
+		printf "# This file generated automaticaly by ${0##*/}, please don't change manually.\nunset SOURCE\nexport SOURCE=(\n" > "${SOURCEFILE}"
+		if [[ -d "${SOURCEDIR}" ]]
+		then
+			local f=""
+			for f in "${SOURCEDIR}/"*".sh"
+			do
+				if [[ "${f}" != *"${SOURCEFILE}" ]]
+				then
+					(
+						unset NAME VERSION
+						source "${f}"
+						if [[ -n "${NAME}" && -n "${VERSION}" ]]
+						then
+							printf "\t\"${NAME}:$(arr2ver ${VERSION[0]} ${VERSION[1]} ${VERSION[2]}):${f##*/}\"\n" >> "${SOURCEFILE}"
+							info "${NAME} -> ${SOURCEFILE##*/}"
+						else
+							warn "the file \"${f}\" doesn't contain 'NAME' or 'VERSION' variables"
+						fi
+					)
+				fi
+			done
+			printf ")\n" >> "${SOURCEFILE}"
+		else
+			err "\"${SOURCEDIR}\" doesn't exist."
+		fi
+	else
+		die "insufficient parameters"
+	fi
+}
+
 while (( "${#}" > 0 ))
 do
 	case "${1,,}"
@@ -141,6 +225,17 @@ do
 			shift
 			export SETOPTION="help"
 		;;
+		("--gensc"|"-g")
+			# Generate Source.
+			shift
+			export SETOPTION="generatesource"
+			if [[ -n "${1}" && "${1}" != -* ]]
+			then
+				export SOURCEDIR="${1}"
+			else
+				export SOURCEDIR="tool"
+			fi
+		;;
 		("--banner"|"-b")
 			shift
 			export banner="true"
@@ -152,32 +247,19 @@ do
 	esac
 done
 
-# 1. Generate Tool list to path.
-# 2. Read tool list from url/path.
-# 3. Get tool from source:git.
-# 4. Read and handle parameters of the tool.
-# 5. Remove tool.
-# 6. Interactive shell with that options.
 case "${SETOPTION,,}"
 in
 	("shell")
 		trap handle_exit EXIT INT
-		requirus "${REQ_COMMANDS[@]}"
+		require "${REQ_COMMANDS[@]}"
 		( "${banner:-false}" && banner || exit 0 )
 		# Here we got interactive shell.
 	;;
+	("generatesource")
+		bc:gensc "${SOURCEDIR:-tool}" "${SOURCEFILE:-source.sh}"
+	;;
 	("version")
-		export counter="0"
-		for v in "${version[@]}"
-		do
-			export counter="$(( counter + 1 ))"
-			if (( "${counter}" > 0 && "${counter}" < "${#version[@]}" ))
-			then
-				printf "${v}."
-			else
-				printf "${v}"
-			fi
-		done
+		arr2ver "${version[0]}" "${version[1]}" "${version[2]}"
 		printf "\n"
 		exit 0
 	;;
