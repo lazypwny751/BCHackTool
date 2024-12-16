@@ -15,17 +15,21 @@ export reset="\e[0m"
 
 # Defaults
 export SETOPTION="unknown"
+export SOURCE="https://raw.githubusercontent.com/lazypwny751/BCHackTool/refs/heads/master/tool"
+export BCROOT="${HOME:-.}/.bychan"
 export version=(
 	"3"
 	"2"
 	"0"
 )
+
 ## Command Package
 export REQ_COMMANDS=(
 	"git:git"
 	"curl:curl"
 	"rm:coreutils"
 	"cat:coreutils"
+	"mkdir:coreutils"
 )
 export OPT=() 
 
@@ -98,6 +102,29 @@ function requirus {
 	fi
 }
 
+## Sub Functions
+function bc:nuke {
+	if [[ -d "${BCROOT}" ]]
+	then
+		rm -vrf "${BCROOT}" && {
+		printf "	⣀⣀⣀
+⠀⠀⠀⠀⣠⡴⢾⠅⠀⠀⠀⠉⠁⠉⠉⠰⡤⢀⠀⠀⠀
+⠀⢀⠖⠚⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⡷⡀⠀
+⠀⢞⢆⠀⠀⠀⠀⠀⠀⣀⠀⡀⠀⠀⠀⠀⠀⠀⠀⢧⠀
+⠀⠀⠫⢄⣠⣤⣄⣤⣿⠛⠟⠻⢻⣿⣆⠀⢀⣠⣤⠞⠀
+⠀⠀⠀⠀⠈⠉⠉⠛⢻⠀⠀⠀⢸⠿⠛⠛⠋⠉⠁⠀⠀
+⠀⠀⠀⠀⠀⠀⢀⣀⠽⡀⡀⣰⠸⢤⣀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢰⡊⠀⠀⡀⢀⡁⣀⣀⠀⠀⣼⠆⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠉⠙⠛⢻⢹⠋⡋⣿⠛⠉⠁⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⡀⠤⠀⣰⣞⠸⠀⠇⢸⠖⡐⠄⠀⠀⠀⠀⠀
+⠀⣀⣴⣾⣿⣿⣾⣠⣏⠀⡤⣠⡈⢧⣝⣷⣶⣄⡀⠀⠀
+⠈⠀⠁⠈⠙⠹⠿⠿⠷⠻⡿⣿⠿⠿⠿⠻⠻⠯⠻⠖⡆\n"	
+		} || {
+			die "problem occured while removing \"${BCROOT}\" directory"
+		}
+	fi
+}
+
 while (( "${#}" > 0 ))
 do
 	case "${1,,}"
@@ -125,12 +152,19 @@ do
 	esac
 done
 
+# 1. Generate Tool list to path.
+# 2. Read tool list from url/path.
+# 3. Get tool from source:git.
+# 4. Read and handle parameters of the tool.
+# 5. Remove tool.
+# 6. Interactive shell with that options.
 case "${SETOPTION,,}"
 in
 	("shell")
 		trap handle_exit EXIT INT
 		requirus "${REQ_COMMANDS[@]}"
-		( "${banner:-false}" && banner )
+		( "${banner:-false}" && banner || exit 0 )
+		# Here we got interactive shell.
 	;;
 	("version")
 		export counter="0"
@@ -148,6 +182,7 @@ in
 		exit 0
 	;;
 	("help")
+		( "${banner:-false}" && banner || exit 0 )
 		printf "Long help\n"
 	;;
 	(*)
